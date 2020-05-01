@@ -45,10 +45,10 @@ img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 img = np.asarray(img, np.float32)
 img = img[np.newaxis, :] / 255.
 
-with tf.Session() as sess:
-    input_data = tf.placeholder(tf.float32, [1, args.new_size[1], args.new_size[0], 3], name='input_data')
+with tf.compat.v1.Session() as sess:
+    input_data = tf.compat.v1.placeholder(tf.float32, [1, args.new_size[1], args.new_size[0], 3], name='input_data')
     yolo_model = yolov3(args.num_class, args.anchors)
-    with tf.variable_scope('yolov3'):
+    with tf.compat.v1.variable_scope('yolov3'):
         pred_feature_maps = yolo_model.forward(input_data, False)
     pred_boxes, pred_confs, pred_probs = yolo_model.predict(pred_feature_maps)
 
@@ -56,7 +56,7 @@ with tf.Session() as sess:
 
     boxes, scores, labels = gpu_nms(pred_boxes, pred_scores, args.num_class, max_boxes=200, score_thresh=0.3, nms_thresh=0.45)
 
-    saver = tf.train.Saver()
+    saver = tf.compat.v1.train.Saver()
     saver.restore(sess, args.restore_path)
 
     boxes_, scores_, labels_ = sess.run([boxes, scores, labels], feed_dict={input_data: img})
